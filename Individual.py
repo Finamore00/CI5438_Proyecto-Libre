@@ -1,3 +1,4 @@
+import numpy as np
 import random
 from PIL import Image, ImageDraw
 from IPython.display import display
@@ -76,13 +77,30 @@ class Individual:
             self.genes.append(Triangle(coordinates, Color(*color_values)))
     
     """
+    Separamos el trazado de los triángulos en otro procedimiento para
+    evitar dibujar la imagen varias veces.
+    """
+    def __draw_triangles(self) -> None:
+        if not self.__img:
+            self.__img = Image.new('RGB', (self.width, self.height), 'white')
+            drawer = ImageDraw.Draw(self.__img, 'RGBA')
+
+            for tri in self.genes:
+                drawer.polygon(tri.coords_to_tuples(), fill=tri.color.to_tuple())
+
+    """
     Función que renderiza la imagen descrita por todos los genes del individuo
     """
     def render(self) -> None:
-        canvas = Image.new('RGB', (self.width, self.height), 'white')
-        drawer = ImageDraw.Draw(canvas, 'RGBA')
+        if not self.__img:
+            self.__draw_triangles()
+        display(self.__img)
 
-        for tri in self.genes:
-            drawer.polygon(tri.coords_to_tuples(), fill=tri.color.to_tuple())
-
-        display(canvas)
+    """
+    Función que retorna la información de pixeles de la imagen generada por los
+    triángulos del individuo como tripletas en un arreglo de numpy
+    """
+    def get_img_data(self) -> np.ndarray:
+        if not self.__img:
+            self.__draw_triangles()
+        return np.array(self.__img.getdata())

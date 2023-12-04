@@ -69,6 +69,7 @@ class Individual:
         self.genes: list[Triangle] = []
         self.width: int = width
         self.height: int = height
+        self.__img = None
         for _ in range(gene_count):
             #Generar un triángulo con coordenadas y color aleatorios
             color_values = [random.randrange(0, 256) for _ in range(4)]

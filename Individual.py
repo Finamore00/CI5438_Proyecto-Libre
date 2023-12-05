@@ -69,6 +69,7 @@ class Individual:
         self.genes: list[Triangle] = []
         self.width: int = width
         self.height: int = height
+        self.gene_count = gene_count
         self.__img = None
         for _ in range(gene_count):
             #Generar un triángulo con coordenadas y color aleatorios
@@ -105,3 +106,24 @@ class Individual:
         if not self.__img:
             self.__draw_triangles()
         return np.array(self.__img.getdata())
+    
+    def get_genes(self) -> [Triangle]:
+        return self.genes
+    
+    def set_genes(self, new_genes: [Triangle]):
+        self.genes = new_genes
+        self.__img = None
+        self.__draw_triangles()
+
+    def mutate(self):
+        self.genes = []
+        for _ in range(self.gene_count):
+            #Generar un triángulo con coordenadas y color aleatorios
+            color_values = [random.randrange(0, 256) for _ in range(4)]
+            #Se aplica un margen extra de 20 pixeles para no dejar bordes blancos
+            coordinates = [Point(random.randrange(-20, self.width+20), random.randrange(-20, self.height+20)) for _ in range(3)]
+            self.genes.append(Triangle(coordinates, Color(*color_values)))
+        
+        # restart the image to draw it again
+        self.__img = None
+        self.__draw_triangles()

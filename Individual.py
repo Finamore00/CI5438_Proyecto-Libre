@@ -25,7 +25,7 @@ class Color:
         self.red = r
         self.green = g
         self.blue = b
-        self.alpha = alpha
+        self.alpha = 50
 
     """
     Retorna los valores RGBA del color como una tupla de enteros
@@ -54,7 +54,6 @@ class Triangle:
 
 
 
-
 """
 Clase que define a un individuo dentro del algoritmo genético. 
 Cada individuo consiste en una lista de genes, y cada gen corres-
@@ -75,7 +74,7 @@ class Individual:
             #Generar un triángulo con coordenadas y color aleatorios
             color_values = [random.randrange(0, 256) for _ in range(4)]
             #Se aplica un margen extra de 20 pixeles para no dejar bordes blancos
-            coordinates = [Point(random.randrange(-20, self.width+20), random.randrange(-20, self.height+20)) for _ in range(3)]
+            coordinates = [Point(random.randrange(-20, (self.width)+20), random.randrange(-20, (self.height)+20)) for _ in range(3)]
             self.genes.append(Triangle(coordinates, Color(*color_values)))
     
     """
@@ -110,20 +109,21 @@ class Individual:
     def get_genes(self) -> [Triangle]:
         return self.genes
     
+    def get_img(self):
+        return self.__img
+    
     def set_genes(self, new_genes: [Triangle]):
         self.genes = new_genes
         self.__img = None
         self.__draw_triangles()
 
-    def mutate(self):
-        self.genes = []
-        for _ in range(self.gene_count):
-            #Generar un triángulo con coordenadas y color aleatorios
-            color_values = [random.randrange(0, 256) for _ in range(4)]
-            #Se aplica un margen extra de 20 pixeles para no dejar bordes blancos
-            coordinates = [Point(random.randrange(-20, self.width+20), random.randrange(-20, self.height+20)) for _ in range(3)]
-            self.genes.append(Triangle(coordinates, Color(*color_values)))
-        
+    def mutate(self, mutation_rate: float):
+        for i in range(self.gene_count):
+            if mutation_rate >= random.random():
+                color_values = [random.randrange(0, 256) for _ in range(4)]
+                coordinates = [Point(random.randrange(-20, (self.width)+20), random.randrange(-20, (self.height)+20)) for _ in range(3)]
+                self.genes[i] = Triangle(coordinates, Color(*color_values))
+
         # restart the image to draw it again
         self.__img = None
         self.__draw_triangles()

@@ -1,7 +1,7 @@
 from PIL import Image
 from Individual import Individual
 import numpy as np
-from random import choices, random
+from random import choices
 from itertools import combinations
 
 """
@@ -30,7 +30,7 @@ class Genetic_Algorithm():
         self.height = height
 
         # create first generation
-        self.population = [Individual(width=width, height=height, gene_count=gene_count) for _ in range(population_size)]
+        self.population = np.array([Individual(width=width, height=height, gene_count=gene_count) for _ in range(population_size)])
         self.stats = [0 for _ in range(max_iter)]
         self.best_individual_per_gen = [None for _ in range(max_iter)]
 
@@ -39,11 +39,11 @@ class Genetic_Algorithm():
             fitness = np.array([self.__fitness_function(ind) for ind in self.population])
 
             stats = (np.average(fitness), np.max(fitness), np.min(fitness))
-            best_individual_index = np.argmax(fitness)
+            best_individual_index = np.argmin(fitness)
             best_individual = self.population[best_individual_index]
 
             # selection
-            self.population = self.__tournament_selection(fitness)
+            self.population = self.__selection_by_probablity(fitness)
 
             # crossover
             self.population = self.__crossover()
@@ -55,17 +55,29 @@ class Genetic_Algorithm():
             self.stats[gen] = stats
             self.best_individual_per_gen[gen] = best_individual
 
-            
-
+    """
+        Compute the mean squere error pixel-wise between the target image
+        and the current image
+    """
     def __fitness_function(self, ind: Individual) -> float:
-        value = 0
-        for (current, target) in zip(ind.get_img_data(), self.img_data):
-            value += np.linalg.norm(np.array(current) - np.array(target))
-        return 1/value
+        differences = np.power(self.img_data - ind.get_img_data(), 2)
+        return np.mean(differences)
 
-    def __tournament_selection(self, fitness: np.array) -> [Individual]:
+    """
+        Compute the probability to choose each individual,
+        then chooses them randomly with the probability as weights.
+
+        Lower fitness implies better individual so the actual
+        probability is 1-(f(i)/sum f(j)) for each individual i
+    """
+    def __selection_by_probablity(self, fitness: np.array) -> np.array:
+        selection_probability = 1 - (fitness/np.sum(fitness))
+        selected_population = choices(self.population, weights=selection_probability, k=self.population_size)
+        return np.array(selected_population)
+    
+    def __tournament_selection(self, fitness: np.array) -> np.array:
         current_population_size = 0
-        new_pop = [None for _ in range(self.population_size)]
+        new_pop = np.array([None for _ in range(self.population_size)])
 
         while current_population_size != self.population_size:
             choosen_indexes = choices(range(self.population_size), k=self.tournament_size)
@@ -81,7 +93,10 @@ class Genetic_Algorithm():
 
         return new_pop
     
-
+    """
+        Given two individual, create two sons.
+        each son has half the genes of each parent
+    """
     def __reproduce(self, mother: Individual, father: Individual) -> (Individual, Individual):
         half_genes = self.gene_count // 2
 
@@ -99,12 +114,16 @@ class Genetic_Algorithm():
 
         return (son_1, son_2)
 
-    def __crossover(self) -> [Individual]:
+    """
+        Generate a list of pairs (x, y) where x != y, then chooses as many random pairs
+        as individual has the population and reproduce them.
+    """
+    def __crossover(self) -> np.array:
         posible_parents = list(combinations(range(self.population_size), 2))
         parents = choices(posible_parents, k=self.population_size)
         
         current_population_size = 0 
-        new_pop = [None for _ in range(self.population_size)]
+        new_pop = np.array([None for _ in range(self.population_size)])
 
         while current_population_size != self.population_size:
             (mother_index, father_index) = parents[current_population_size]
@@ -119,14 +138,12 @@ class Genetic_Algorithm():
 
         return new_pop
     
-    def __mutation(self) -> [Individual]:
-        new_pop = [None for _ in range(self.population_size)]
-        for i in range(self.population_size):
-            can_mutate = random()
-            current_ind = self.population[i]
-            if self.__mutation_rate >= can_mutate:
-                current_ind.mutate()
-
-            new_pop[i] = current_ind
-
+    """
+        Mutate each individual of the population by a mutation rate
+    """
+    def __mutation(self) -> np.array:
+        new_pop = np.array([None for _ in range(self.population_size)])
+        for (i, ind) in enumerate(self.population):
+            ind.mutate(self.__mutation_rate)
+            new_pop[i] = ind
         return new_pop

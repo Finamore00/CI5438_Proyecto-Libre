@@ -97,7 +97,7 @@ class Genetic_Algorithm():
         Given two individual, create two sons.
         each son has half the genes of each parent
     """
-    def __reproduce(self, mother: Individual, father: Individual) -> (Individual, Individual):
+    def __reproduce(self, mother: Individual, father: Individual) -> tuple[Individual, Individual]:
         half_genes = self.gene_count // 2
 
         mother_genes = mother.get_genes()
@@ -120,12 +120,12 @@ class Genetic_Algorithm():
     """
     def __crossover(self) -> np.array:
         posible_parents = list(combinations(range(self.population_size), 2))
-        parents = choices(posible_parents, k=self.population_size)
+        parents = choices(posible_parents, k=self.population_size*2)
         
         current_population_size = 0 
-        new_pop = np.array([None for _ in range(self.population_size)])
+        new_pop = np.array([None for _ in range(self.population_size*2)])
 
-        while current_population_size != self.population_size:
+        while current_population_size != self.population_size*2:
             (mother_index, father_index) = parents[current_population_size]
             mother, father = self.population[mother_index], self.population[father_index]
 
@@ -136,7 +136,8 @@ class Genetic_Algorithm():
 
             current_population_size += 2
 
-        return new_pop
+        new_pop = sorted(new_pop, key=(lambda ind: self.__fitness_function(ind)))
+        return new_pop[:self.population_size]
     
     """
         Mutate each individual of the population by a mutation rate

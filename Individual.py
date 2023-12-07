@@ -74,7 +74,15 @@ class Individual:
             #Generar un triángulo con coordenadas y color aleatorios
             color_values = [random.randrange(0, 256) for _ in range(4)]
             #Se aplica un margen extra de 20 pixeles para no dejar bordes blancos
-            coordinates = [Point(random.randrange(-20, (self.width)+20), random.randrange(-20, (self.height)+20)) for _ in range(3)]
+            tri_center_x, tri_center_y = (random.randrange(-20, (self.width + 20)), random.randrange(-20, (self.height + 20)))
+            max_span_w, max_span_h = (self.width//5, self.height//5)
+            coordinates = []
+            for _ in range(3):
+                ran_mult_w = random.choice([1, -1])
+                ran_mult_h = random.choice([1, -1])
+                x_coord = tri_center_x + ran_mult_w*random.randrange(1, max_span_w)
+                y_coord = tri_center_y + ran_mult_h*random.randrange(1, max_span_h)
+                coordinates += [Point(x_coord, y_coord)]
             self.genes.append(Triangle(coordinates, Color(*color_values)))
     
     """
@@ -118,11 +126,7 @@ class Individual:
         self.__draw_triangles()
 
     def mutate(self, mutation_rate: float):
-        for i in range(self.gene_count):
-            if mutation_rate >= random.random():
-                color_values = [random.randrange(0, 256) for _ in range(4)]
-                coordinates = [Point(random.randrange(-20, (self.width)+20), random.randrange(-20, (self.height)+20)) for _ in range(3)]
-                self.genes[i] = Triangle(coordinates, Color(*color_values))
+        self.__init__(self.width, self.height, self.gene_count)
 
         # restart the image to draw it again
         self.__img = None

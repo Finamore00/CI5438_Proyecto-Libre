@@ -3,7 +3,7 @@ from Individual import Individual
 import numpy as np
 from random import choices
 from itertools import combinations
-
+import random
 """
 Clase que implementa el algoritmo genético y provee las interfaces
 necesarias para ingresar y extraer información hacia y desde el mismo.
@@ -54,14 +54,19 @@ class Genetic_Algorithm():
             # find the best individual of the current gen
             self.stats[gen] = stats
             self.best_individual_per_gen[gen] = best_individual
+            if gen % 100 == 0:
+                print(f'Best fitness: {self.__fitness_function(best_individual)}')
+                best_individual.render()
 
     """
         Compute the mean squere error pixel-wise between the target image
         and the current image
-    """
+    """ 
     def __fitness_function(self, ind: Individual) -> float:
-        differences = np.power(self.img_data - ind.get_img_data(), 2)
-        return np.mean(differences)
+        if not ind.get_fitness():
+            differences = np.power(self.img_data - ind.get_img_data(), 2)
+            ind.set_fitness(np.mean(differences))
+        return ind.get_fitness()
 
     """
         Compute the probability to choose each individual,
@@ -103,11 +108,21 @@ class Genetic_Algorithm():
         mother_genes = mother.get_genes()
         father_genes = father.get_genes()
 
-        son_1_genes = mother_genes[0:half_genes] + father_genes[half_genes:]
-        son_2_genes = father_genes[0:half_genes] + mother_genes[half_genes:]
+        son_1_genes = []
+        son_2_genes = []
 
-        son_1 = Individual(width=self.width, height=self.height, gene_count=self.gene_count)
-        son_2 = Individual(width=self.width, height=self.height, gene_count=self.gene_count)
+
+        for i in range(self.gene_count):
+            k = random.choice([True, False])
+            if k:
+                son_1_genes.append(mother_genes[i])
+                son_2_genes.append(father_genes[i])
+            else:
+                son_2_genes.append(father_genes[i])
+                son_1_genes.append(mother_genes[i])
+
+        son_1 = Individual(width=self.width, height=self.height, gene_count=self.gene_count, make_empty=True)
+        son_2 = Individual(width=self.width, height=self.height, gene_count=self.gene_count, make_empty=True)
         
         son_1.set_genes(son_1_genes)
         son_2.set_genes(son_2_genes)

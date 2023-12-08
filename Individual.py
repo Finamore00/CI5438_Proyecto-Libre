@@ -135,10 +135,12 @@ class Individual:
     def get_fitness(self) -> float:
         return self.__fitness
     
-    def mutate(self, mutation_rate: float):
-        self.__init__(self.width, self.height, self.gene_count)
-
-        # restart the image to draw it again
-        self.__img = None
-        self.__fitness = None
-        self.__draw_triangles()
+    def mutate(self, probability: float) -> None:
+        for i in range(len(self.genes)):
+            k = random.random()
+            if k <= probability:
+                tri_center_x, tri_center_y = (random.randrange(-20, self.width + 20), random.randrange(-20, self.height + 20))
+                max_delta_x, max_delta_y = (random.randrange(0, self.width//5), random.randrange(0, self.height//5))
+                tri_points = [Point(tri_center_x + random.choice([-1, 1])*max_delta_x, tri_center_y + random.choice([-1, 1]*max_delta_y)) for _ in range(3)]
+                tri_color = Color(random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255), random.randrange(50, 150))
+                self.genes[i] = Triangle(tri_points, tri_color)

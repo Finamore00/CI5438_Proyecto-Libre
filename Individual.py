@@ -25,7 +25,7 @@ class Color:
         self.red = r
         self.green = g
         self.blue = b
-        self.alpha = 50
+        self.alpha = 70
 
     """
     Retorna los valores RGBA del color como una tupla de enteros

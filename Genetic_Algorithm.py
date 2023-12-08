@@ -44,7 +44,7 @@ class Genetic_Algorithm():
 
             # selection
             self.population = self.__selection_by_probablity(fitness)
-
+            
             # crossover
             self.population = self.__crossover()
 

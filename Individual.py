@@ -74,19 +74,22 @@ class Individual:
         self.__fitness: float = None
         if not make_empty:
             for _ in range(gene_count):
-                #Generar un triángulo con coordenadas y color aleatorios
-                color_values = [random.randrange(0, 256) for _ in range(3)] + [random.randrange(50, 150)]
-                #Se aplica un margen extra de 20 pixeles para no dejar bordes blancos
-                tri_center_x, tri_center_y = (random.randrange(-20, (self.width + 20)), random.randrange(-20, (self.height + 20)))
-                max_span_w, max_span_h = (self.width//3, self.height//3)
-                coordinates = []
-                for _ in range(3):
-                    ran_mult_w = random.choice([1, -1])
-                    ran_mult_h = random.choice([1, -1])
-                    x_coord = tri_center_x + ran_mult_w*random.randrange(1, max_span_w)
-                    y_coord = tri_center_y + ran_mult_h*random.randrange(1, max_span_h)
-                    coordinates += [Point(x_coord, y_coord)]
-                self.genes.append(Triangle(coordinates, Color(*color_values)))
+                self.genes.append(self.__create_gene())
+    
+    def __create_gene(self):
+        color_values = [random.randrange(0, 256) for _ in range(3)] + [random.randrange(50, 150)]
+        tri_center_x, tri_center_y = (random.randrange(-20, (self.width + 20)), random.randrange(-20, (self.height + 20)))
+        max_span_w, max_span_h = (self.width//3, self.height//3)
+
+        coordinates = []
+        for _ in range(3):
+            ran_mult_w = random.choice([1, -1])
+            ran_mult_h = random.choice([1, -1])
+            x_coord = tri_center_x + ran_mult_w*random.randrange(1, max_span_w)
+            y_coord = tri_center_y + ran_mult_h*random.randrange(1, max_span_h)
+            coordinates += [Point(x_coord, y_coord)]
+
+        return Triangle(coordinates, Color(*color_values))
     
     """
     Separamos el trazado de los triángulos en otro procedimiento para
@@ -139,8 +142,8 @@ class Individual:
         for i in range(len(self.genes)):
             k = random.random()
             if k <= probability:
-                tri_center_x, tri_center_y = (random.randrange(-20, self.width + 20), random.randrange(-20, self.height + 20))
-                max_delta_x, max_delta_y = (random.randrange(0, self.width//5), random.randrange(0, self.height//5))
-                tri_points = [Point(tri_center_x + random.choice([-1, 1])*max_delta_x, tri_center_y + random.choice([-1, 1])*max_delta_y) for _ in range(3)]
-                tri_color = Color(random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255), random.randrange(50, 150))
-                self.genes[i] = Triangle(tri_points, tri_color)
+                self.genes[i] = self.__create_gene()
+
+        self.__img = None
+        self.__fitness = None
+        self.__draw_triangles()

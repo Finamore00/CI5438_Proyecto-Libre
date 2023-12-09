@@ -25,7 +25,7 @@ class Color:
         self.red = r
         self.green = g
         self.blue = b
-        self.alpha = 70
+        self.alpha = alpha
 
     """
     Retorna los valores RGBA del color como una tupla de enteros
@@ -141,6 +141,6 @@ class Individual:
             if k <= probability:
                 tri_center_x, tri_center_y = (random.randrange(-20, self.width + 20), random.randrange(-20, self.height + 20))
                 max_delta_x, max_delta_y = (random.randrange(0, self.width//5), random.randrange(0, self.height//5))
-                tri_points = [Point(tri_center_x + random.choice([-1, 1])*max_delta_x, tri_center_y + random.choice([-1, 1]*max_delta_y)) for _ in range(3)]
+                tri_points = [Point(tri_center_x + random.choice([-1, 1])*max_delta_x, tri_center_y + random.choice([-1, 1])*max_delta_y) for _ in range(3)]
                 tri_color = Color(random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255), random.randrange(50, 150))
                 self.genes[i] = Triangle(tri_points, tri_color)

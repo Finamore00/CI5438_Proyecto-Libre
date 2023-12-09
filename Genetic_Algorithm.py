@@ -54,7 +54,7 @@ class Genetic_Algorithm():
             # find the best individual of the current gen
             self.stats[gen] = stats
             self.best_individual_per_gen[gen] = best_individual
-            if gen % 100 == 0:
+            if gen % 10 == 0:
                 print(f'Best fitness: {self.__fitness_function(best_individual)}')
                 best_individual.render()
 
